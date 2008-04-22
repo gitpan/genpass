@@ -1,0 +1,91 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+require Getopt::Long qw(:config no_ignore_case);
+
+our $VERSION = '0.01';
+
+srand();
+
+my $length = 15;
+my @chars = ('A'..'Z', 'a'..'z', 0..9);
+my @specialchars = split "", q{!@#$%^&*()};
+my $special = 1;
+my $repeat = 10;
+my $ret = 1;
+$ret = GetOptions(
+	"l|length=i"	=> \$length,
+	"r|repeat=i"	=> \$repeat,
+	"n|no-special"	=> sub { $special = 0; },
+	"h|help"	=> sub { pUsage(); },
+	);
+
+$ret || exit(2);
+push @chars, @specialchars if $special;
+
+for (1 .. $repeat) {
+	my $password = "";
+	for (0 .. $length) {
+		$password .= $chars[int rand @chars];
+	}
+	print "$password\n";
+}
+
+sub pUsage {
+	print <<_END_HELP;
+$0 [-l | --length LENGTH] [-n | --no-special] [-r | --repeat NUMBER]
+_END_HELP
+	exit(0);
+}
+
+#################### main pod documentation begin ###################
+=head1 NAME
+
+genpass - Quickly create secure passwords
+
+=head1 SYNOPSIS
+
+genpass [-l | --length LENGTH] [-n | --no-special] [-r | --repeat NUMBER]
+  -l | --length		password length
+  -n | --no-special	do NOT include special characters: '!','@','#','$','%','^','&','*','(',')' 
+  -r | --repeat NUMBER	NUMBER of passwords to output
+  -h | --help		print a small usage line
+
+=head1 DESCRIPTION
+
+There are many jobs in which you just need to create a fast and secure password.
+Sometimes you need one without special characters and sometimes you need to have a minimum length as well.
+This script makes it possible, quickly and easily.
+
+=head1 BUGS
+
+None that I know of. Please report if and when you find any.
+
+=head1 SUPPORT
+
+If you have any problems or questions, contact me using the details below.
+
+=head1 AUTHOR
+
+    Sawyer X
+    CPAN ID: XSAWYERX
+    xsawyerx@cpan.org
+
+=head1 COPYRIGHT
+
+This program is free software; you can redistribute
+it and/or modify it under the same terms as Perl itself.
+
+The full text of the license can be found in the
+LICENSE file included with this module.
+
+
+=head1 SEE ALSO
+
+perl(1).
+
+=cut
+
+#################### main pod documentation end ###################
+
