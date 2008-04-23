@@ -2,9 +2,9 @@
 
 use strict;
 use warnings;
-require Getopt::Long qw(:config no_ignore_case);
+use Getopt::Long qw(:config no_ignore_case);
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 srand();
 
@@ -47,10 +47,11 @@ genpass - Quickly create secure passwords
 =head1 SYNOPSIS
 
 genpass [-l | --length LENGTH] [-n | --no-special] [-r | --repeat NUMBER]
-  -l | --length		password length
-  -n | --no-special	do NOT include special characters: '!','@','#','$','%','^','&','*','(',')' 
-  -r | --repeat NUMBER	NUMBER of passwords to output
-  -h | --help		print a small usage line
+
+    -l | --length		password length
+    -n | --no-special	do NOT include special characters: '!','@','#','$','%','^','&','*','(',')' 
+    -r | --repeat NUMBER	NUMBER of passwords to output
+    -h | --help		print a small usage line
 
 =head1 DESCRIPTION
 

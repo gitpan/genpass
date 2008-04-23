@@ -2,5 +2,6 @@ Revision history for Perl module genpass
 
 0.01 Tue Apr 22 12:58:27 2008
     - original version; created by ExtUtils::ModuleMaker 0.51
-
+0.02 Wed Apr 23 11:08:00 2008
+    - changed "require" to "use". Oops.
 

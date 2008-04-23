@@ -1,7 +1,8 @@
+Changes
+lib/genpass
+LICENSE
+Makefile.PL
 MANIFEST
 README
-LICENSE
 Todo
-Changes
-Makefile.PL
-lib/genpass
+META.yml                                 Module meta-data (added by MakeMaker)
