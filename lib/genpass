@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Getopt::Long qw(:config no_ignore_case);
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 srand();
 
@@ -81,6 +81,12 @@ it and/or modify it under the same terms as Perl itself.
 The full text of the license can be found in the
 LICENSE file included with this module.
 
+=head1 A Word on Moral
+
+Our lives depend on the decisions of others in the world, and so, other lives depend on our decisions.
+When we decide to consume animals, we dedicate the death of others, and it is something to consider giving up.
+Please review http://www.meatstinks.com and http://www.milksucks.com .
+Thank you.
 
 =head1 SEE ALSO
 

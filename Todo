@@ -1,5 +1,5 @@
 TODO list for Perl distribution genpass
 
 - Enable the user to have every possible variation
-
+- Enable tests for the output (regexp check them, I reckon)
 
