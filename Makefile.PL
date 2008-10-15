@@ -10,7 +10,8 @@ WriteMakefile(
     AUTHOR       => 'Sawyer X (xsawyerx@cpan.org)',
     ABSTRACT_FROM => 'lib/genpass',
     PREREQ_PM    => {
-                     'Test::Simple' => 0.44,
-		     'Getopt::Long' => 2.35,
+                     'Test::Simple'    => 0.44,
+		     'Getopt::Long'    => 2.35,
+		     'List::MoreUtils' => 0.22,
                     },
 );

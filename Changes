@@ -7,3 +7,7 @@ Revision history for Perl distrbution genpass
 0.03 Sun Apr 27 12:15:50 2008
     - added a test script that approves everything.
     - updated POD to reflect some opinion
+0.04 Wed Oct 15 11:38:18 2008
+    - added "easily readable" mode, for allowing of comfortably readable passwords
+    - code cleanup
+    - code now easier to skim and contains more standards (though breaking some I don't care for)

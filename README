@@ -1,11 +1,15 @@
+NAME
+    genpass - Quickly create secure passwords
+
 SYNOPSIS
     genpass [-l | --length LENGTH] [-n | --no-special] [-r | --repeat
     NUMBER]
 
-        -l | --length               password length
-        -n | --no-special   do NOT include special characters: '!','@','#','$','%','^','&','*','(',')' 
-        -r | --repeat NUMBER        NUMBER of passwords to output
-        -h | --help         print a small usage line
+        -l | --length          password length
+        -r | --repeat NUMBER   NUMBER of passwords to output
+        -n | --no-special      do NOT include special characters: '!','@','#','$','%','^','&','*','(',')' 
+        -e | --readable        print only easily readable characters (no "o", "O", "0", "l", "1", "I", "t")
+        -h | --help            print a small usage line
 
 DESCRIPTION
     There are many jobs in which you just need to create a fast and secure

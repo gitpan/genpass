@@ -3,41 +3,55 @@
 use strict;
 use warnings;
 use Getopt::Long qw(:config no_ignore_case);
+use List::MoreUtils qw( none );
 
-our $VERSION = '0.03';
+sub print_usage {
+	print <<'_END_HELP';
+$0 [-l | --length LENGTH] [-n | --no-special] [-r | --repeat NUMBER] [-e | --readable]
+_END_HELP
+	exit 0;
+}
 
-srand();
+our $VERSION = '0.04';
 
-my $length = 15;
-my @chars = ('A'..'Z', 'a'..'z', 0..9);
-my @specialchars = split "", q{!@#$%^&*()};
-my $special = 1;
-my $repeat = 10;
-my $ret = 1;
-$ret = GetOptions(
-	"l|length=i"	=> \$length,
-	"r|repeat=i"	=> \$repeat,
-	"n|no-special"	=> sub { $special = 0; },
-	"h|help"	=> sub { pUsage(); },
-	);
+srand;
 
-$ret || exit(2);
-push @chars, @specialchars if $special;
+my $EMPTY              = q{};
+my $length             = 15;
+my @chars              = ('A'..'Z', 'a'..'z', '0'..'9');
+my @unreadable_chars   = split $EMPTY, q{oO0l1I};
+my @special_chars      = split $EMPTY, q{!@#$%^&*()};
+my $special            = 1;
+my $repeat             = 10;
+my $readable           = 0;
+
+GetOptions(
+        'l|length=i'	=> \$length,
+        'r|repeat=i'	=> \$repeat,
+        'n|no-special'	=> sub { $special = 0; },
+        'e|readable'	=> \$readable,
+        'h|help'	=> sub { print_usage(); },
+) or exit 2;
+
+if ($special) { push @chars, @special_chars; }
+if ($readable) {
+	@chars = grep {
+		    $a = $_;
+		    none { $a eq $_ } @unreadable_chars;
+		  } @chars;
+}
+
+#use Data::Dumper; print Dumper(\@chars); exit;
 
 for (1 .. $repeat) {
-	my $password = "";
+	my $password = $EMPTY;
 	for (0 .. $length) {
 		$password .= $chars[int rand @chars];
 	}
 	print "$password\n";
 }
 
-sub pUsage {
-	print <<_END_HELP;
-$0 [-l | --length LENGTH] [-n | --no-special] [-r | --repeat NUMBER]
-_END_HELP
-	exit(0);
-}
+__END__
 
 #################### main pod documentation begin ###################
 =head1 NAME
@@ -48,10 +62,11 @@ genpass - Quickly create secure passwords
 
 genpass [-l | --length LENGTH] [-n | --no-special] [-r | --repeat NUMBER]
 
-    -l | --length		password length
-    -n | --no-special	do NOT include special characters: '!','@','#','$','%','^','&','*','(',')' 
-    -r | --repeat NUMBER	NUMBER of passwords to output
-    -h | --help		print a small usage line
+    -l | --length          password length
+    -r | --repeat NUMBER   NUMBER of passwords to output
+    -n | --no-special      do NOT include special characters: '!','@','#','$','%','^','&','*','(',')' 
+    -e | --readable        print only easily readable characters (no "o", "O", "0", "l", "1", "I", "t")
+    -h | --help            print a small usage line
 
 =head1 DESCRIPTION
 

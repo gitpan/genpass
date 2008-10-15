@@ -1,5 +1,5 @@
 TODO list for Perl distribution genpass
 
-- Enable the user to have every possible variation
-- Enable tests for the output (regexp check them, I reckon)
-
+- Testing suite
+- Make sure theres every requested char
+- Add printout of description from POD for --help

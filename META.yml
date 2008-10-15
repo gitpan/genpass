@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                genpass
-version:             0.03
+version:             0.04
 abstract:            Quickly create secure passwords
 license:             ~
 author:              
@@ -9,6 +9,7 @@ generated_by:        ExtUtils::MakeMaker version 6.44
 distribution_type:   module
 requires:     
     Getopt::Long:                  2.35
+    List::MoreUtils:               0.22
     Test::Simple:                  0.44
 meta-spec:
     url:     http://module-build.sourceforge.net/META-spec-v1.3.html
