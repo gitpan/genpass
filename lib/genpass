@@ -3,53 +3,156 @@
 use strict;
 use warnings;
 use Getopt::Long qw(:config no_ignore_case);
+use List::Util qw( shuffle );
 use List::MoreUtils qw( none );
+use Readonly;
 
 sub print_usage {
 	print <<'_END_HELP';
-$0 [-l | --length LENGTH] [-n | --no-special] [-r | --repeat NUMBER] [-e | --readable]
+$0 [-l | --length LENGTH] [-n | --no-special] [-r | --repeat NUMBER] [-e | --readable] [--verify | --no-verify]
 _END_HELP
 	exit 0;
 }
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 srand;
 
-my $EMPTY              = q{};
-my $length             = 15;
-my @chars              = ('A'..'Z', 'a'..'z', '0'..'9');
+Readonly my $EMPTY     => q{};
+
+my @small_caps_chars   = ( 'a'..'z' );
+my @large_caps_chars   = ( 'A'..'Z' );
+my @numerical_chars    = ( '0'..'9' );
 my @unreadable_chars   = split $EMPTY, q{oO0l1I};
 my @special_chars      = split $EMPTY, q{!@#$%^&*()};
+my @chars;
+
+my $num_of_types       = 0;
 my $special            = 1;
+my $length             = 15;
 my $repeat             = 10;
 my $readable           = 0;
+my $verify             = 1;
+
+my %verified = (
+	'small_caps', $EMPTY,
+	'large_caps', $EMPTY,
+	'numerical',  $EMPTY,
+	'special',    $EMPTY,
+	'unreadable', $EMPTY,
+);
 
 GetOptions(
-        'l|length=i'	=> \$length,
-        'r|repeat=i'	=> \$repeat,
-        'n|no-special'	=> sub { $special = 0; },
-        'e|readable'	=> \$readable,
-        'h|help'	=> sub { print_usage(); },
+        'l|length=i'   => \$length,
+        'r|repeat=i'   => \$repeat,
+        'n|no-special' => sub { $special = 0; },
+        'e|readable'   => \$readable,
+        'verify!'      => \$verify,
+        'h|help'       => sub { print_usage(); },
 ) or exit 2;
 
-if ($special) { push @chars, @special_chars; }
-if ($readable) {
-	@chars = grep {
-		    $a = $_;
-		    none { $a eq $_ } @unreadable_chars;
-		  } @chars;
+push @chars, @small_caps_chars, @large_caps_chars, @numerical_chars;
+$num_of_types += 3;
+
+if ($special) {
+	push @chars, @special_chars;
+	$num_of_types++;
 }
 
-#use Data::Dumper; print Dumper(\@chars); exit;
+if ($readable) {
+	@chars = grep {
+		    local $a = $_;
+		    none { $a eq $_ } @unreadable_chars;
+		  } @chars;
+} else {
+	$num_of_types++;
+}
+
+if ($num_of_types > $length) {
+	die "You wanted a longer string that the variety of characters you've selected.\n"
+	  . "You requested $num_of_types types of characters but only have $length length.\n";
+}
 
 for (1 .. $repeat) {
 	my $password = $EMPTY;
-	for (0 .. $length) {
-		$password .= $chars[int rand @chars];
+	while ($length > length $password) {
+		my $char = $chars[int rand @chars];
+
+		if ($verify) {
+			# very comfortable for debugging
+			#print "-> CHAR: $char\n";
+			#print "(order: small, large, numerical, special, unreadable)\n";
+			#use Data::Dumper; print Dumper(\%verified);
+
+			# verify small caption characters
+			if ( !$verified{small_caps} ) {
+				if ( none { $char eq $_ } @small_caps_chars ) {
+					next;
+				} else {
+					$password .= $char;
+					$verified{small_caps}++;
+					next;
+				}
+			}
+
+			# verify large caption characters
+			if ( !$verified{large_caps} ) {
+				if ( none { $char eq $_ } @large_caps_chars ) {
+					next;
+				} else {
+					$password .= $char;
+					$verified{large_caps}++;
+					next;
+				}
+			}
+
+			# verify numerical characters
+			if ( !$verified{numerical} ) {
+				if ( none { $char eq $_ } @numerical_chars ) {
+					next;
+				} else {
+					$password .= $char;
+					$verified{numerical}++;
+					next;
+				}
+			}
+
+			# verify special characters
+			if ( !$verified{special} ) {
+				if ( ($special) && ( none { $char eq $_ } @special_chars ) ) {
+					next;
+				} else {
+					$password .= $char;
+					$verified{special}++;
+					next;
+				}
+			}
+
+			# verify unreadable characters
+			if ( !$verified{unreadable} ) {
+				if ( (!$readable) && ( none { $char eq $_ } @unreadable_chars ) ) {
+					next;
+				} else {
+					$password .= $char;
+					$verified{unreadable}++;
+					next;
+				}
+			}
+
+			$password .= $char;
+		} else {
+			$password .= $char;
+		}
 	}
-	print "$password\n";
+
+	print shuffle( split //, $password ) , "\n";
+
+	# clear out the verifications
+	foreach my $key ( keys %verified ) {
+		$verified{$key} = $EMPTY;
+	}
 }
+
 
 __END__
 
@@ -60,12 +163,14 @@ genpass - Quickly create secure passwords
 
 =head1 SYNOPSIS
 
-genpass [-l | --length LENGTH] [-n | --no-special] [-r | --repeat NUMBER]
+genpass [-l | --length LENGTH] [-n | --no-special] [-r | --repeat NUMBER] [--verify | --no-verify]
 
     -l | --length          password length
     -r | --repeat NUMBER   NUMBER of passwords to output
     -n | --no-special      do NOT include special characters: '!','@','#','$','%','^','&','*','(',')' 
-    -e | --readable        print only easily readable characters (no "o", "O", "0", "l", "1", "I", "t")
+    -e | --readable        print only easily readable characters (no "o", "O", "0", "l", "1", "I")
+       | --verify          makes sure it's got every type of char (slower), default behavior
+       | --no-verify       doesn't make sure you got every type of char
     -h | --help            print a small usage line
 
 =head1 DESCRIPTION

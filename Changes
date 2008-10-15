@@ -11,3 +11,13 @@ Revision history for Perl distrbution genpass
     - added "easily readable" mode, for allowing of comfortably readable passwords
     - code cleanup
     - code now easier to skim and contains more standards (though breaking some I don't care for)
+0.05
+    - "t" is still listed as easily readable, fixed POD
+    - $EMPTY now Readonly
+    - magic variable in grep now localized
+    - rewritten main loop to allow checking of characters added
+    - added "verify": making sure it contains all types user requested
+    - differs between numbers, small and large caption letters - for smarter verification
+    - shuffles the string: when using verification, it puts the strings in order, so shuffling is essential (from List::Util)
+    - added dependencies for Readonly and List::Util in Makefile.PL
+    - added check whether user wants more diversity than password length allows

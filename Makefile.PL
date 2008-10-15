@@ -12,6 +12,8 @@ WriteMakefile(
     PREREQ_PM    => {
                      'Test::Simple'    => 0.44,
 		     'Getopt::Long'    => 2.35,
+		     'List::Util'      => 1.19,
 		     'List::MoreUtils' => 0.22,
+		     'Readonly'        => 1.03,
                     },
 );
