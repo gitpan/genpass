@@ -9,6 +9,7 @@ WriteMakefile(
     VERSION_FROM => 'lib/genpass', # finds \$VERSION
     AUTHOR       => 'Sawyer X (xsawyerx@cpan.org)',
     ABSTRACT_FROM => 'lib/genpass',
+    LICENSE      => 'perl',
     PREREQ_PM    => {
                      'Test::Simple'    => 0.44,
 		     'Getopt::Long'    => 2.35,

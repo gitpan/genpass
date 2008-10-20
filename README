@@ -3,19 +3,24 @@ NAME
 
 SYNOPSIS
     genpass [-l | --length LENGTH] [-n | --no-special] [-r | --repeat
-    NUMBER]
+    NUMBER] [--verify | --no-verify]
 
         -l | --length          password length
         -r | --repeat NUMBER   NUMBER of passwords to output
         -n | --no-special      do NOT include special characters: '!','@','#','$','%','^','&','*','(',')' 
-        -e | --readable        print only easily readable characters (no "o", "O", "0", "l", "1", "I", "t")
+        -e | --readable        print only easily readable characters (no "o", "O", "0", "l", "1", "I")
+           | --verify          makes sure it's got every type of char (a tad slower), default behavior
+           | --no-verify       doesn't make sure you get every type of char (a tad faster)
         -h | --help            print a small usage line
 
 DESCRIPTION
-    There are many jobs in which you just need to create a fast and secure
-    password. Sometimes you need one without special characters and
-    sometimes you need to have a minimum length as well. This script makes
-    it possible, quickly and easily.
+    if you've ever needed to create 10 (or even 10,000) passwords on the fly
+    with varying preferences (lowercase, uppercase, no confusing characters,
+    special characters, minimum length, etc.), you know it can become a
+    pretty pesky task.
+
+    This script makes it possible to create flexible and secure passwords,
+    quickly and easily.
 
 BUGS
     None that I know of. Please report if and when you find any.

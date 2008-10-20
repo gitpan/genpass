@@ -11,7 +11,7 @@ Revision history for Perl distrbution genpass
     - added "easily readable" mode, for allowing of comfortably readable passwords
     - code cleanup
     - code now easier to skim and contains more standards (though breaking some I don't care for)
-0.05
+0.05 (Wed Oct 15 I think)
     - "t" is still listed as easily readable, fixed POD
     - $EMPTY now Readonly
     - magic variable in grep now localized
@@ -21,3 +21,11 @@ Revision history for Perl distrbution genpass
     - shuffles the string: when using verification, it puts the strings in order, so shuffling is essential (from List::Util)
     - added dependencies for Readonly and List::Util in Makefile.PL
     - added check whether user wants more diversity than password length allows
+0.06 Sun Oct 19 17:49:50
+    - added LICENSE indication to Makefile.PL (due to a Gabor Szabo post)
+    - took a jab at testing, not sure if it will develop into anything
+    - rewrote the POD a bit
+    - improved inline code documentation
+    - changed "small caps" and "large caps" to proper "lowercase" and "uppercase"
+    - srand() removed for rand() to implicitly set it
+    - fixed help output

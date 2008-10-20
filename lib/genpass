@@ -8,20 +8,20 @@ use List::MoreUtils qw( none );
 use Readonly;
 
 sub print_usage {
-	print <<'_END_HELP';
+	print <<"_END_HELP";
 $0 [-l | --length LENGTH] [-n | --no-special] [-r | --repeat NUMBER] [-e | --readable] [--verify | --no-verify]
+
+(for full help, view perldoc of this distribution)
 _END_HELP
 	exit 0;
 }
 
-our $VERSION = '0.05';
-
-srand;
+our $VERSION = '0.06';
 
 Readonly my $EMPTY     => q{};
 
-my @small_caps_chars   = ( 'a'..'z' );
-my @large_caps_chars   = ( 'A'..'Z' );
+my @lowercase_chars    = ( 'a'..'z' );
+my @uppercase_chars    = ( 'A'..'Z' );
 my @numerical_chars    = ( '0'..'9' );
 my @unreadable_chars   = split $EMPTY, q{oO0l1I};
 my @special_chars      = split $EMPTY, q{!@#$%^&*()};
@@ -34,14 +34,6 @@ my $repeat             = 10;
 my $readable           = 0;
 my $verify             = 1;
 
-my %verified = (
-	'small_caps', $EMPTY,
-	'large_caps', $EMPTY,
-	'numerical',  $EMPTY,
-	'special',    $EMPTY,
-	'unreadable', $EMPTY,
-);
-
 GetOptions(
         'l|length=i'   => \$length,
         'r|repeat=i'   => \$repeat,
@@ -51,7 +43,7 @@ GetOptions(
         'h|help'       => sub { print_usage(); },
 ) or exit 2;
 
-push @chars, @small_caps_chars, @large_caps_chars, @numerical_chars;
+push @chars, @lowercase_chars, @uppercase_chars, @numerical_chars;
 $num_of_types += 3;
 
 if ($special) {
@@ -59,6 +51,9 @@ if ($special) {
 	$num_of_types++;
 }
 
+# if we care for readable characters
+# we remove using List::MoreUtils' none{} and grep{}
+# the characters from @chars which match @unreadable_chars
 if ($readable) {
 	@chars = grep {
 		    local $a = $_;
@@ -75,33 +70,46 @@ if ($num_of_types > $length) {
 
 for (1 .. $repeat) {
 	my $password = $EMPTY;
+
+	# this hash helps us make sure we have every type requested
+	my %verified = (
+		'lowercase',  $EMPTY,
+		'uppercase',  $EMPTY,
+		'numerical',  $EMPTY,
+		'special',    $EMPTY,
+		'unreadable', $EMPTY,
+	);
+
 	while ($length > length $password) {
 		my $char = $chars[int rand @chars];
 
+		# for verifying, we just check that it has small capital letters
+		# if that doesn't work, we keep asking it to get a new random one till it does
+		# the check if it has large capital letters and so on
 		if ($verify) {
 			# very comfortable for debugging
 			#print "-> CHAR: $char\n";
 			#print "(order: small, large, numerical, special, unreadable)\n";
 			#use Data::Dumper; print Dumper(\%verified);
 
-			# verify small caption characters
-			if ( !$verified{small_caps} ) {
-				if ( none { $char eq $_ } @small_caps_chars ) {
+			# verify lowercase characters
+			if ( !$verified{lowercase} ) {
+				if ( none { $char eq $_ } @lowercase_chars ) {
 					next;
 				} else {
 					$password .= $char;
-					$verified{small_caps}++;
+					$verified{lowercase}++;
 					next;
 				}
 			}
 
-			# verify large caption characters
-			if ( !$verified{large_caps} ) {
-				if ( none { $char eq $_ } @large_caps_chars ) {
+			# verify uppercase characters
+			if ( !$verified{uppercase} ) {
+				if ( none { $char eq $_ } @uppercase_chars ) {
 					next;
 				} else {
 					$password .= $char;
-					$verified{large_caps}++;
+					$verified{uppercase}++;
 					next;
 				}
 			}
@@ -145,12 +153,11 @@ for (1 .. $repeat) {
 		}
 	}
 
+	# since the verification process creates a situation of ordered types
+	# (lowercase, uppercase, numerical, special, unreadable)
+	# we need to fix that by shuffling the string
+	# also, it's good generally
 	print shuffle( split //, $password ) , "\n";
-
-	# clear out the verifications
-	foreach my $key ( keys %verified ) {
-		$verified{$key} = $EMPTY;
-	}
 }
 
 
@@ -169,15 +176,15 @@ genpass [-l | --length LENGTH] [-n | --no-special] [-r | --repeat NUMBER] [--ver
     -r | --repeat NUMBER   NUMBER of passwords to output
     -n | --no-special      do NOT include special characters: '!','@','#','$','%','^','&','*','(',')' 
     -e | --readable        print only easily readable characters (no "o", "O", "0", "l", "1", "I")
-       | --verify          makes sure it's got every type of char (slower), default behavior
-       | --no-verify       doesn't make sure you got every type of char
+       | --verify          makes sure it's got every type of char (a tad slower), default behavior
+       | --no-verify       doesn't make sure you get every type of char (a tad faster)
     -h | --help            print a small usage line
 
 =head1 DESCRIPTION
 
-There are many jobs in which you just need to create a fast and secure password.
-Sometimes you need one without special characters and sometimes you need to have a minimum length as well.
-This script makes it possible, quickly and easily.
+if you've ever needed to create 10 (or even 10,000) passwords on the fly with varying preferences (lowercase, uppercase, no confusing characters, special characters, minimum length, etc.), you know it can become a pretty pesky task.
+
+This script makes it possible to create flexible and secure passwords, quickly and easily.
 
 =head1 BUGS
 

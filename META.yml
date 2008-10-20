@@ -1,8 +1,8 @@
 --- #YAML:1.0
 name:                genpass
-version:             0.05
+version:             0.06
 abstract:            Quickly create secure passwords
-license:             ~
+license:             perl
 author:              
     - Sawyer X (xsawyerx@cpan.org)
 generated_by:        ExtUtils::MakeMaker version 6.44

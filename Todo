@@ -1,9 +1,7 @@
 TODO list for Perl distribution genpass
 
-  - Testing suite
-  - Add printout of pod2text for --help option
+  - Testing suite (problematic, view t/001_load.t)
   - Read configuration file from home folder or indicated conf from command line
   - Allow user fingergrained selection of chars (small, large captions, numbers, etc.)
-  - Improve inline code documentation
   - Refactor verification code (if() clauses)
   - Perhaps rewrite and refactor verification none {} with any {}
