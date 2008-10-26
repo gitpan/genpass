@@ -2,9 +2,10 @@ NAME
     genpass - Quickly create secure passwords
 
 SYNOPSIS
-    genpass [-l | --length LENGTH] [-n | --no-special] [-r | --repeat
-    NUMBER] [--verify | --no-verify]
+    genpass [-c | --config FILE] [-l | --length LENGTH] [-n | --no-special]
+    [-r | --repeat NUMBER] [--verify | --no-verify]
 
+        -c | --config FILE     read config file from FILE (default is $HOME/.genpassrc)
         -l | --length          password length
         -r | --repeat NUMBER   NUMBER of passwords to output
         -n | --no-special      do NOT include special characters: '!','@','#','$','%','^','&','*','(',')' 
@@ -21,6 +22,23 @@ DESCRIPTION
 
     This script makes it possible to create flexible and secure passwords,
     quickly and easily.
+
+    Starting version 0.07 it also supports a configuration file (default is
+    .genpassrc is your home folder) across multiple operating systems
+    (thanks to Ken Williams and Adam Kennedy's great modules: Path::Class
+    and File::HomDir, respectively).
+
+    You can configure the following things in the configuration file:
+
+    - lowercase_chars ( default is 'a'..'z' ) - uppercase_chars ( deafult is
+    'A'..'Z' ) - numerical_chars ( default is '0'..'9' ) - unreadable_chars
+    ( default is o,O,0,l,1,I ) - special_chars ( default is
+    !,@,#,$,%,^,&,*,(,) ) - readable ( default is 0 ) - special ( default is
+    1 ) - verify ( default is 1 ) - repeat ( default is 10 ) - length (
+    default is 15 )
+
+    See POD of Config::General (perldoc Config::General) for more
+    information on the file format.
 
 BUGS
     None that I know of. Please report if and when you find any.

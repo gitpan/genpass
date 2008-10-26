@@ -29,3 +29,7 @@ Revision history for Perl distrbution genpass
     - changed "small caps" and "large caps" to proper "lowercase" and "uppercase"
     - srand() removed for rand() to implicitly set it
     - fixed help output
+0.07 Sun Oct 26 14:34:40
+    - added dependencies to Config::General, File::HomeDir and Path::Class
+    - reads configuration file from home folder or indicated conf from command line
+    - allow user fingergrained selection of chars (small, large captions, numbers, etc.) through configuration

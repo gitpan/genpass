@@ -1,7 +1,7 @@
 TODO list for Perl distribution genpass
 
-  - Testing suite (problematic, view t/001_load.t)
-  - Read configuration file from home folder or indicated conf from command line
-  - Allow user fingergrained selection of chars (small, large captions, numbers, etc.)
-  - Refactor verification code (if() clauses)
-  - Perhaps rewrite and refactor verification none {} with any {}
+  - allow user fingergrained selection of chars (small, large captions, numbers, etc.) through command line
+  - refactor verification code (if() clauses)
+  - perhaps rewrite and refactor verification none {} with any {}
+  - fix GetOptions parameters ('no-special' to 'special=!' etc.)
+  - testing suite (problematic, view t/001_load.t)

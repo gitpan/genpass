@@ -16,5 +16,8 @@ WriteMakefile(
 		     'List::Util'      => 1.19,
 		     'List::MoreUtils' => 0.22,
 		     'Readonly'        => 1.03,
+		     'Config::General' => 2.40,
+		     'File::HomeDir'   => 0.82,
+		     'Path::Class'     => 0.16,
                     },
 );

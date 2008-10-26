@@ -2,73 +2,106 @@
 
 use strict;
 use warnings;
-use Getopt::Long qw(:config no_ignore_case);
-use List::Util qw( shuffle );
-use List::MoreUtils qw( none );
+use Getopt::Long    qw( :config no_ignore_case );
+use List::Util      qw( shuffle                );
+use List::MoreUtils qw( none                   );
 use Readonly;
+use Config::General;
+use File::HomeDir;
+use Path::Class;
+#use Data::Dumper;
+
+local $| = 1;
 
 sub print_usage {
 	print <<"_END_HELP";
-$0 [-l | --length LENGTH] [-n | --no-special] [-r | --repeat NUMBER] [-e | --readable] [--verify | --no-verify]
+$0 [-c | --config FILE] [--read-config | --no-read-config] [-l | --length LENGTH] [-n | --no-special] [-r | --repeat NUMBER] [-e | --readable] [--verify | --no-verify]
 
 (for full help, view perldoc of this distribution)
 _END_HELP
 	exit 0;
 }
 
-our $VERSION = '0.06';
+our $VERSION           = '0.07';
 
 Readonly my $EMPTY     => q{};
 
-my @lowercase_chars    = ( 'a'..'z' );
-my @uppercase_chars    = ( 'A'..'Z' );
-my @numerical_chars    = ( '0'..'9' );
-my @unreadable_chars   = split $EMPTY, q{oO0l1I};
-my @special_chars      = split $EMPTY, q{!@#$%^&*()};
-my @chars;
-
+my $config_file        = file( File::HomeDir->my_home, '.genpassrc' )->stringify;
 my $num_of_types       = 0;
-my $special            = 1;
-my $length             = 15;
-my $repeat             = 10;
-my $readable           = 0;
-my $verify             = 1;
+my $read_config        = 1;
+
+my ( @chars, %cmd_opts );
+
+my %config_opts = (
+        'lowercase_chars',  [ ( 'a'..'z' )                ],
+        'uppercase_chars',  [ ( 'A'..'Z' )                ],
+        'numerical_chars',  [ ( '0'..'9' )                ],
+        'unreadable_chars', [ split $EMPTY, q{oO0l1I}     ],
+        'special_chars',    [ split $EMPTY, q{!@#$%^&*()} ],
+
+        'readable',          0,
+        'special',           1,
+        'verify',            1,
+        'repeat',           10,
+        'length',           15,
+);
 
 GetOptions(
-        'l|length=i'   => \$length,
-        'r|repeat=i'   => \$repeat,
-        'n|no-special' => sub { $special = 0; },
-        'e|readable'   => \$readable,
-        'verify!'      => \$verify,
+        'read-config!' => \$read_config,
+        'c|config=s'   => \$config_file,
+        'l|length=i'   => \$cmd_opts{'length'},
+        'r|repeat=i'   => \$cmd_opts{'repeat'},
+        'n|no-special' => sub { $cmd_opts{'special'} = 0; },
+        'e|readable!'  => \$cmd_opts{'readable'},
+        'verify!'      => \$cmd_opts{'verify'},
         'h|help'       => sub { print_usage(); },
 ) or exit 2;
 
-push @chars, @lowercase_chars, @uppercase_chars, @numerical_chars;
+# read the configuration from the configuration file
+if ($read_config) {
+	my $conf = new Config::General(
+				-ConfigFile            => $config_file,
+				-DefaultConfig         => \%config_opts,
+				-MergeDuplicateOptions => 1,
+			) or die "failed or parse $config_file: $@\n";
+
+	%config_opts = $conf->getall();
+}
+
+while ( my ( $key, $val ) = each %cmd_opts ) {
+	# GetOptions creates the keys, even if they are not given a value
+	# so we're weeding out the undefs
+	if ( defined $cmd_opts{$key} ) {
+		$config_opts{$key} = $val;
+	}
+}
+
+push @chars, @{$config_opts{'lowercase_chars'}}, @{$config_opts{'uppercase_chars'}}, @{$config_opts{'numerical_chars'}};
 $num_of_types += 3;
 
-if ($special) {
-	push @chars, @special_chars;
+if ($config_opts{'special'}) {
+	push @chars, @{$config_opts{'special_chars'}};
 	$num_of_types++;
 }
 
 # if we care for readable characters
 # we remove using List::MoreUtils' none{} and grep{}
 # the characters from @chars which match @unreadable_chars
-if ($readable) {
+if ($config_opts{'readable'}) {
 	@chars = grep {
 		    local $a = $_;
-		    none { $a eq $_ } @unreadable_chars;
+		    none { $a eq $_ } @{$config_opts{'unreadable_chars'}};
 		  } @chars;
 } else {
 	$num_of_types++;
 }
 
-if ($num_of_types > $length) {
+if ($num_of_types > $config_opts{'length'}) {
 	die "You wanted a longer string that the variety of characters you've selected.\n"
-	  . "You requested $num_of_types types of characters but only have $length length.\n";
+	  . "You requested $num_of_types types of characters but only have $config_opts{'length'} length.\n";
 }
 
-for (1 .. $repeat) {
+for (1 .. $config_opts{'repeat'}) {
 	my $password = $EMPTY;
 
 	# this hash helps us make sure we have every type requested
@@ -80,69 +113,69 @@ for (1 .. $repeat) {
 		'unreadable', $EMPTY,
 	);
 
-	while ($length > length $password) {
+	while ($config_opts{'length'} > length $password) {
 		my $char = $chars[int rand @chars];
 
 		# for verifying, we just check that it has small capital letters
 		# if that doesn't work, we keep asking it to get a new random one till it does
 		# the check if it has large capital letters and so on
-		if ($verify) {
+		if ($config_opts{'verify'}) {
 			# very comfortable for debugging
 			#print "-> CHAR: $char\n";
 			#print "(order: small, large, numerical, special, unreadable)\n";
 			#use Data::Dumper; print Dumper(\%verified);
 
 			# verify lowercase characters
-			if ( !$verified{lowercase} ) {
-				if ( none { $char eq $_ } @lowercase_chars ) {
+			if ( !$verified{'lowercase'} ) {
+				if ( none { $char eq $_ } @{$config_opts{'lowercase_chars'}} ) {
 					next;
 				} else {
 					$password .= $char;
-					$verified{lowercase}++;
+					$verified{'lowercase'}++;
 					next;
 				}
 			}
 
 			# verify uppercase characters
-			if ( !$verified{uppercase} ) {
-				if ( none { $char eq $_ } @uppercase_chars ) {
+			if ( !$verified{'uppercase'} ) {
+				if ( none { $char eq $_ } @{$config_opts{'uppercase_chars'}} ) {
 					next;
 				} else {
 					$password .= $char;
-					$verified{uppercase}++;
+					$verified{'uppercase'}++;
 					next;
 				}
 			}
 
 			# verify numerical characters
-			if ( !$verified{numerical} ) {
-				if ( none { $char eq $_ } @numerical_chars ) {
+			if ( !$verified{'numerical'} ) {
+				if ( none { $char eq $_ } @{$config_opts{'numerical_chars'}} ) {
 					next;
 				} else {
 					$password .= $char;
-					$verified{numerical}++;
+					$verified{'numerical'}++;
 					next;
 				}
 			}
 
 			# verify special characters
-			if ( !$verified{special} ) {
-				if ( ($special) && ( none { $char eq $_ } @special_chars ) ) {
+			if ( !$verified{'special'} ) {
+				if ( ($config_opts{'special'}) && ( none { $char eq $_ } @{$config_opts{'special_chars'}} ) ) {
 					next;
 				} else {
 					$password .= $char;
-					$verified{special}++;
+					$verified{'special'}++;
 					next;
 				}
 			}
 
 			# verify unreadable characters
-			if ( !$verified{unreadable} ) {
-				if ( (!$readable) && ( none { $char eq $_ } @unreadable_chars ) ) {
+			if ( !$verified{'unreadable'} ) {
+				if ( (!$config_opts{'readable'}) && ( none { $char eq $_ } $config_opts{'unreadable_chars'} ) ) {
 					next;
 				} else {
 					$password .= $char;
-					$verified{unreadable}++;
+					$verified{'unreadable'}++;
 					next;
 				}
 			}
@@ -170,8 +203,11 @@ genpass - Quickly create secure passwords
 
 =head1 SYNOPSIS
 
-genpass [-l | --length LENGTH] [-n | --no-special] [-r | --repeat NUMBER] [--verify | --no-verify]
+genpass [-c | --config FILE] [--read-config | --no-read-config] [-l | --length LENGTH] [-n | --no-special] [-r | --repeat NUMBER] [--verify | --no-verify]
 
+    -c | --config FILE     read config file from FILE (default is $HOME/.genpassrc)
+         --read-config     read the configuration file (this is the default behavior)
+         --no-read-config  do not read the configuration file, opposite of the above option
     -l | --length          password length
     -r | --repeat NUMBER   NUMBER of passwords to output
     -n | --no-special      do NOT include special characters: '!','@','#','$','%','^','&','*','(',')' 
@@ -185,6 +221,34 @@ genpass [-l | --length LENGTH] [-n | --no-special] [-r | --repeat NUMBER] [--ver
 if you've ever needed to create 10 (or even 10,000) passwords on the fly with varying preferences (lowercase, uppercase, no confusing characters, special characters, minimum length, etc.), you know it can become a pretty pesky task.
 
 This script makes it possible to create flexible and secure passwords, quickly and easily.
+
+Starting version 0.07 it also supports a configuration file (default is .genpassrc is your home folder) across multiple operating systems (thanks to Ken Williams and Adam Kennedy's great modules: Path::Class and File::HomDir, respectively).
+
+
+You can configure the following things in the configuration file:
+
+- lowercase_chars ( default is 'a'..'z' )
+
+- uppercase_chars ( deafult is 'A'..'Z' )
+
+- numerical_chars ( default is '0'..'9' )
+
+- unreadable_chars ( default is o,O,0,l,1,I )
+
+- special_chars ( default is !,@,#,$,%,^,&,*,(,) )
+
+- readable ( default is 0 )
+
+- special ( default is 1 )
+
+- verify ( default is 1 )
+
+- repeat ( default is 10 )
+
+- length ( default is 15 )
+
+
+See POD of Config::General (perldoc Config::General) for more information on the file format.
 
 =head1 BUGS
 
