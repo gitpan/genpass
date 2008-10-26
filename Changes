@@ -33,3 +33,8 @@ Revision history for Perl distrbution genpass
     - added dependencies to Config::General, File::HomeDir and Path::Class
     - reads configuration file from home folder or indicated conf from command line
     - allow user fingergrained selection of chars (small, large captions, numbers, etc.) through configuration
+0.08 Sun Oct 26 19:59:12
+    - fixed unreadable check, missing @{} for $config_opts{}
+    - refactor verification code (if() clauses)
+    - fixed GetOptions parameters ('no-special' to 'special=!') without breaking backwards compatibility on '-n'
+    - added "-V" and "--version" switches

@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                genpass
-version:             0.07
+version:             0.08
 abstract:            Quickly create secure passwords
 license:             perl
 author:              

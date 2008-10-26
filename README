@@ -2,13 +2,17 @@ NAME
     genpass - Quickly create secure passwords
 
 SYNOPSIS
-    genpass [-c | --config FILE] [-l | --length LENGTH] [-n | --no-special]
-    [-r | --repeat NUMBER] [--verify | --no-verify]
+    genpass [-c | --config FILE] [--read-config | --no-read-config] [-l |
+    --length LENGTH] [--special | --no-special | -n] [-r | --repeat NUMBER]
+    [--verify | --no-verify]
 
         -c | --config FILE     read config file from FILE (default is $HOME/.genpassrc)
+             --read-config     read the configuration file (this is the default behavior)
+             --no-read-config  do not read the configuration file, opposite of the above option
         -l | --length          password length
         -r | --repeat NUMBER   NUMBER of passwords to output
-        -n | --no-special      do NOT include special characters: '!','@','#','$','%','^','&','*','(',')' 
+             --special         include special characters: '!','@','#','$','%','^','&','*','(',')', default behavior
+        -n | --no-special      do NOT include special characters, opposite of the above option
         -e | --readable        print only easily readable characters (no "o", "O", "0", "l", "1", "I")
            | --verify          makes sure it's got every type of char (a tad slower), default behavior
            | --no-verify       doesn't make sure you get every type of char (a tad faster)
@@ -29,13 +33,16 @@ DESCRIPTION
     and File::HomDir, respectively).
 
     You can configure the following things in the configuration file:
-
-    - lowercase_chars ( default is 'a'..'z' ) - uppercase_chars ( deafult is
-    'A'..'Z' ) - numerical_chars ( default is '0'..'9' ) - unreadable_chars
-    ( default is o,O,0,l,1,I ) - special_chars ( default is
-    !,@,#,$,%,^,&,*,(,) ) - readable ( default is 0 ) - special ( default is
-    1 ) - verify ( default is 1 ) - repeat ( default is 10 ) - length (
-    default is 15 )
+    - lowercase_chars ( default is 'a'..'z' )
+    - uppercase_chars ( deafult is 'A'..'Z' )
+    - numerical_chars ( default is '0'..'9' )
+    - unreadable_chars ( default is o,O,0,l,1,I )
+    - special_chars ( default is !,@,#,$,%,^,&,*,(,) )
+    - readable ( default is 0 )
+    - special ( default is 1 )
+    - verify ( default is 1 )
+    - repeat ( default is 10 )
+    - length ( default is 15 )
 
     See POD of Config::General (perldoc Config::General) for more
     information on the file format.

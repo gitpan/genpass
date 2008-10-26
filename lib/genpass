@@ -13,16 +13,23 @@ use Path::Class;
 
 local $| = 1;
 
+our $VERSION           = '0.08';
+
 sub print_usage {
 	print <<"_END_HELP";
-$0 [-c | --config FILE] [--read-config | --no-read-config] [-l | --length LENGTH] [-n | --no-special] [-r | --repeat NUMBER] [-e | --readable] [--verify | --no-verify]
+$0 [-c | --config FILE] [--read-config | --no-read-config] [-l | --length LENGTH] [--special | --no-special | -n] [-r | --repeat NUMBER] [-e | --readable] [--verify | --no-verify]
 
 (for full help, view perldoc of this distribution)
 _END_HELP
+
 	exit 0;
 }
 
-our $VERSION           = '0.07';
+sub print_version {
+	print "Version $VERSION\n" or die "Can't print: $!\n";
+
+	exit 0;
+}
 
 Readonly my $EMPTY     => q{};
 
@@ -39,7 +46,7 @@ my %config_opts = (
         'unreadable_chars', [ split $EMPTY, q{oO0l1I}     ],
         'special_chars',    [ split $EMPTY, q{!@#$%^&*()} ],
 
-        'readable',          0,
+        'readable',          1,
         'special',           1,
         'verify',            1,
         'repeat',           10,
@@ -51,10 +58,12 @@ GetOptions(
         'c|config=s'   => \$config_file,
         'l|length=i'   => \$cmd_opts{'length'},
         'r|repeat=i'   => \$cmd_opts{'repeat'},
-        'n|no-special' => sub { $cmd_opts{'special'} = 0; },
-        'e|readable!'  => \$cmd_opts{'readable'},
         'verify!'      => \$cmd_opts{'verify'},
-        'h|help'       => sub { print_usage(); },
+        'e|readable!'  => \$cmd_opts{'readable'},
+        's|special!'   => \$cmd_opts{'special'},
+	'n'            => sub { $cmd_opts{'special'}  = 0; },
+        'h|help'       => sub { print_usage();   },
+        'V|version'    => sub { print_version(); },
 ) or exit 2;
 
 # read the configuration from the configuration file
@@ -75,6 +84,10 @@ while ( my ( $key, $val ) = each %cmd_opts ) {
 		$config_opts{$key} = $val;
 	}
 }
+
+# allow for code refactoring later on
+# creating a backwards entry to 'readable'
+$config_opts{'unreadable'} = ( $config_opts{'readable'} ? 0 : 1 );
 
 push @chars, @{$config_opts{'lowercase_chars'}}, @{$config_opts{'uppercase_chars'}}, @{$config_opts{'numerical_chars'}};
 $num_of_types += 3;
@@ -106,14 +119,14 @@ for (1 .. $config_opts{'repeat'}) {
 
 	# this hash helps us make sure we have every type requested
 	my %verified = (
-		'lowercase',  $EMPTY,
-		'uppercase',  $EMPTY,
-		'numerical',  $EMPTY,
-		'special',    $EMPTY,
-		'unreadable', $EMPTY,
+		'lowercase',    $EMPTY,
+		'uppercase',    $EMPTY,
+		'numerical',    $EMPTY,
+		'special',      $EMPTY,
+		'unreadable',   $EMPTY,
 	);
 
-	while ($config_opts{'length'} > length $password) {
+CHAR:	while ($config_opts{'length'} > length $password) {
 		my $char = $chars[int rand @chars];
 
 		# for verifying, we just check that it has small capital letters
@@ -125,58 +138,38 @@ for (1 .. $config_opts{'repeat'}) {
 			#print "(order: small, large, numerical, special, unreadable)\n";
 			#use Data::Dumper; print Dumper(\%verified);
 
-			# verify lowercase characters
-			if ( !$verified{'lowercase'} ) {
-				if ( none { $char eq $_ } @{$config_opts{'lowercase_chars'}} ) {
-					next;
-				} else {
-					$password .= $char;
-					$verified{'lowercase'}++;
-					next;
+			# verifying lowercase, uppercase and numerical
+			# if they aren't verified, check if there are any
+			# if there aren't any, fetch anothing char
+			# if it's verified, mark it verified and fetch another char
+			foreach my $type ( qw( lowercase uppercase numerical ) ) {
+				my $entry = $type . '_chars';
+				if ( !$verified{$type} ) {
+					if ( none { $char eq $_ } @{$config_opts{$entry}} ) {
+						next CHAR;
+					} else {
+						$password .= $char;
+						$verified{$type}++;
+						next CHAR;
+					}
 				}
 			}
 
-			# verify uppercase characters
-			if ( !$verified{'uppercase'} ) {
-				if ( none { $char eq $_ } @{$config_opts{'uppercase_chars'}} ) {
-					next;
-				} else {
-					$password .= $char;
-					$verified{'uppercase'}++;
-					next;
-				}
-			}
-
-			# verify numerical characters
-			if ( !$verified{'numerical'} ) {
-				if ( none { $char eq $_ } @{$config_opts{'numerical_chars'}} ) {
-					next;
-				} else {
-					$password .= $char;
-					$verified{'numerical'}++;
-					next;
-				}
-			}
-
-			# verify special characters
-			if ( !$verified{'special'} ) {
-				if ( ($config_opts{'special'}) && ( none { $char eq $_ } @{$config_opts{'special_chars'}} ) ) {
-					next;
-				} else {
-					$password .= $char;
-					$verified{'special'}++;
-					next;
-				}
-			}
-
-			# verify unreadable characters
-			if ( !$verified{'unreadable'} ) {
-				if ( (!$config_opts{'readable'}) && ( none { $char eq $_ } $config_opts{'unreadable_chars'} ) ) {
-					next;
-				} else {
-					$password .= $char;
-					$verified{'unreadable'}++;
-					next;
+			# verifying special and unreadable characters
+			# if they aren't verified, check if there are any
+			# if there aren't any, fetch another char
+			# if it's verified, mark it verified and fetch another char
+			foreach my $type ( qw( special unreadable ) ) {
+				my $entry = $type . '_chars';
+				if ( !$verified{$type} ) {
+					if ( ( $config_opts{$type} ) &&
+							( none { $char eq $_ } @{$config_opts{$entry}} ) ) {
+					} else {
+						$password .= $char;
+						$verified{$type}++;
+						next CHAR;
+					}
+						next CHAR;
 				}
 			}
 
@@ -203,14 +196,15 @@ genpass - Quickly create secure passwords
 
 =head1 SYNOPSIS
 
-genpass [-c | --config FILE] [--read-config | --no-read-config] [-l | --length LENGTH] [-n | --no-special] [-r | --repeat NUMBER] [--verify | --no-verify]
+genpass [-c | --config FILE] [--read-config | --no-read-config] [-l | --length LENGTH] [--special | --no-special | -n] [-r | --repeat NUMBER] [--verify | --no-verify]
 
     -c | --config FILE     read config file from FILE (default is $HOME/.genpassrc)
          --read-config     read the configuration file (this is the default behavior)
          --no-read-config  do not read the configuration file, opposite of the above option
     -l | --length          password length
     -r | --repeat NUMBER   NUMBER of passwords to output
-    -n | --no-special      do NOT include special characters: '!','@','#','$','%','^','&','*','(',')' 
+         --special         include special characters: '!','@','#','$','%','^','&','*','(',')', default behavior
+    -n | --no-special      do NOT include special characters, opposite of the above option
     -e | --readable        print only easily readable characters (no "o", "O", "0", "l", "1", "I")
        | --verify          makes sure it's got every type of char (a tad slower), default behavior
        | --no-verify       doesn't make sure you get every type of char (a tad faster)
