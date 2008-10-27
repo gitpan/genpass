@@ -38,3 +38,10 @@ Revision history for Perl distrbution genpass
     - refactor verification code (if() clauses)
     - fixed GetOptions parameters ('no-special' to 'special=!') without breaking backwards compatibility on '-n'
     - added "-V" and "--version" switches
+0.09 Mon Oct 27 11:12:00
+    - changed version printing format
+    - fixed POD a bit
+    - added "-s" and "--special" to force indicate special variables
+    - fixed bug that considers unreadable characters as another type of character
+    - changed none{} to any{} in the verification code portion
+    - refactored a large amount of the code

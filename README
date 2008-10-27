@@ -3,8 +3,8 @@ NAME
 
 SYNOPSIS
     genpass [-c | --config FILE] [--read-config | --no-read-config] [-l |
-    --length LENGTH] [--special | --no-special | -n] [-r | --repeat NUMBER]
-    [--verify | --no-verify]
+    --length LENGTH] [-s | --special | --no-special | -n] [-r | --repeat
+    NUMBER] [-e | --readable | --no-readable] [--verify | --no-verify]
 
         -c | --config FILE     read config file from FILE (default is $HOME/.genpassrc)
              --read-config     read the configuration file (this is the default behavior)
@@ -19,7 +19,7 @@ SYNOPSIS
         -h | --help            print a small usage line
 
 DESCRIPTION
-    if you've ever needed to create 10 (or even 10,000) passwords on the fly
+    If you've ever needed to create 10 (or even 10,000) passwords on the fly
     with varying preferences (lowercase, uppercase, no confusing characters,
     special characters, minimum length, etc.), you know it can become a
     pretty pesky task.
@@ -30,19 +30,29 @@ DESCRIPTION
     Starting version 0.07 it also supports a configuration file (default is
     .genpassrc is your home folder) across multiple operating systems
     (thanks to Ken Williams and Adam Kennedy's great modules: Path::Class
-    and File::HomDir, respectively).
+    and File::HomeDir, respectively).
 
     You can configure the following things in the configuration file:
-    - lowercase_chars ( default is 'a'..'z' )
-    - uppercase_chars ( deafult is 'A'..'Z' )
-    - numerical_chars ( default is '0'..'9' )
-    - unreadable_chars ( default is o,O,0,l,1,I )
-    - special_chars ( default is !,@,#,$,%,^,&,*,(,) )
-    - readable ( default is 0 )
-    - special ( default is 1 )
-    - verify ( default is 1 )
-    - repeat ( default is 10 )
-    - length ( default is 15 )
+
+    *   lowercase_chars ( default is 'a'..'z' )
+
+    *   uppercase_chars ( deafult is 'A'..'Z' )
+
+    *   numerical_chars ( default is '0'..'9' )
+
+    *   unreadable_chars ( default is o,O,0,l,1,I )
+
+    *   special_chars ( default is !,@,#,$,%,^,&,*,(,) )
+
+    *   readable ( default is 0 )
+
+    *   special ( default is 1 )
+
+    *   verify ( default is 1 )
+
+    *   repeat ( default is 10 )
+
+    *   length ( default is 15 )
 
     See POD of Config::General (perldoc Config::General) for more
     information on the file format.

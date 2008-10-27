@@ -1,5 +1,3 @@
 TODO list for Perl distribution genpass
 
-  - allow user fingergrained selection of chars (small, large captions, numbers, etc.) through command line
-  - perhaps rewrite and refactor verification none {} with any {}
   - testing suite (problematic, view t/001_load.t)
